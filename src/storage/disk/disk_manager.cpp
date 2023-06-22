@@ -43,7 +43,10 @@ DiskManager::DiskManager(const std::string &db_file) : file_name_(db_file) {
   if (!log_io_.is_open()) {
     log_io_.clear();
     // create a new file
-    log_io_.open(log_name_, std::ios::binary | std::ios::trunc | std::ios::out | std::ios::in);
+    log_io_.open(log_name_, std::ios::binary | std::ios::trunc | std::ios::app | std::ios::out);
+    log_io_.close();
+    // reopen with original mode
+    log_io_.open(log_name_, std::ios::binary | std::ios::in | std::ios::app | std::ios::out);
     if (!log_io_.is_open()) {
       throw Exception("can't open dblog file");
     }
@@ -55,7 +58,10 @@ DiskManager::DiskManager(const std::string &db_file) : file_name_(db_file) {
   if (!db_io_.is_open()) {
     db_io_.clear();
     // create a new file
-    db_io_.open(db_file, std::ios::binary | std::ios::trunc | std::ios::out | std::ios::in);
+    db_io_.open(db_file, std::ios::binary | std::ios::trunc | std::ios::out);
+    db_io_.close();
+    // reopen with original mode
+    db_io_.open(db_file, std::ios::binary | std::ios::in | std::ios::out);
     if (!db_io_.is_open()) {
       throw Exception("can't open db file");
     }

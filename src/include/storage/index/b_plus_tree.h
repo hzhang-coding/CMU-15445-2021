@@ -58,6 +58,8 @@ class BPlusTree {
   auto Begin() -> INDEXITERATOR_TYPE;
   auto Begin(const KeyType &key) -> INDEXITERATOR_TYPE;
   auto End() -> INDEXITERATOR_TYPE;
+  auto begin() -> INDEXITERATOR_TYPE { return Begin(); }
+  auto end() -> INDEXITERATOR_TYPE { return End(); }
 
   // print the B+ tree
   void Print(BufferPoolManager *bpm);
@@ -71,10 +73,11 @@ class BPlusTree {
   // read data from file and remove one by one
   void RemoveFromFile(const std::string &file_name, Transaction *transaction = nullptr);
   // expose for test purpose
-  auto FindLeafPage(const KeyType &key, bool leftMost = false) -> Page *;
+  auto FindLeafPage(const KeyType &key, int option = 0) -> Page *;
 
  private:
   void StartNewTree(const KeyType &key, const ValueType &value);
+  void StartNewRoot(BPlusTreePage *left_node, const KeyType &key, BPlusTreePage *right_node);
 
   auto InsertIntoLeaf(const KeyType &key, const ValueType &value, Transaction *transaction = nullptr) -> bool;
 
@@ -83,9 +86,14 @@ class BPlusTree {
 
   template <typename N>
   auto Split(N *node) -> N *;
+  auto SplitLeafNode(LeafPage *left_node) -> LeafPage *;
+  auto SplitInternalNode(InternalPage *left_node) -> InternalPage *;
 
   template <typename N>
   auto CoalesceOrRedistribute(N *node, Transaction *transaction = nullptr) -> bool;
+
+  void AdjustLeafNode(LeafPage *leaf_node, const KeyType &key, Transaction *transaction);
+  void AdjustInternalNode(InternalPage *internal_node, const KeyType &key, Transaction *transaction);
 
   template <typename N>
   auto Coalesce(N **neighbor_node, N **node, BPlusTreeInternalPage<KeyType, page_id_t, KeyComparator> **parent,
@@ -110,6 +118,7 @@ class BPlusTree {
   KeyComparator comparator_;
   int leaf_max_size_;
   int internal_max_size_;
+  ReaderWriterLatch rwlatch_;
 };
 
 }  // namespace bustub

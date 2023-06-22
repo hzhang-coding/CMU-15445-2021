@@ -42,8 +42,10 @@ class BPlusTreeInternalPage : public BPlusTreePage {
   void SetKeyAt(int index, const KeyType &key);
   auto ValueIndex(const ValueType &value) const -> int;
   auto ValueAt(int index) const -> ValueType;
+  void SetValueAt(int index, const ValueType &value);
 
   auto Lookup(const KeyType &key, const KeyComparator &comparator) const -> ValueType;
+  auto KeyIndex(const KeyType &key, const KeyComparator &comparator) const -> int;
   void PopulateNewRoot(const ValueType &old_value, const KeyType &new_key, const ValueType &new_value);
   auto InsertNodeAfter(const ValueType &old_value, const KeyType &new_key, const ValueType &new_value) -> int;
   void Remove(int index);
@@ -62,6 +64,6 @@ class BPlusTreeInternalPage : public BPlusTreePage {
   void CopyLastFrom(const MappingType &pair, BufferPoolManager *buffer_pool_manager);
   void CopyFirstFrom(const MappingType &pair, BufferPoolManager *buffer_pool_manager);
   // Flexible array member for page data.
-  MappingType array_[1];
+  MappingType array_[INTERNAL_PAGE_SIZE];
 };
 }  // namespace bustub
